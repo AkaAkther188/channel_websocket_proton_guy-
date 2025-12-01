@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Enter Room</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body{
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f2f4f8;
+        }
+
+        .card{
+            background: white;
+            padding: 35px 40px;
+            width: 340px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        h1{
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 25px;
+        }
+
+        label{
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        input{
+            width: 100%;
+            padding: 10px 12px;
+            margin: 8px 0 18px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        input:focus{
+            border-color: #4A90E2;
+            outline: none;
+            box-shadow: 0 0 4px rgba(74,144,226,0.4);
+        }
+
+        button{
+            width: 100%;
+            padding: 11px;
+            border: none;
+            background: #4A90E2;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover{
+            background: #357ABD;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Enter Room</h1>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+
+            <label>Username</label>
+            <input type="text" name="user_name" placeholder="Enter your username" required>
+
+            <label>Room Name</label>
+            <input type="text" name="room" placeholder="Enter room name" required>
+
+            <button type="submit">Join Room</button>
+        </form>
+    </div>
+</body>
+</html>
