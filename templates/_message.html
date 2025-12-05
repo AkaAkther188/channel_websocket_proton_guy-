@@ -2,84 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inbox</title>
-
-<style>
-    body{
-        font-family: Arial, sans-serif;
-        background:#f0f0f0;
-        margin:0;
-        padding:0;
-    }
-    .chat-box{
-        width:100%;
-        height:90vh;
-        overflow-y:scroll;
-        padding:15px;
-    }
-    .msg{
-        padding:8px 12px;
-        margin:5px 0;
-        background:white;
-        border-radius:10px;
-        max-width:70%;
-    }
-    .own{
-        background:#dcf8c6; /* WhatsApp sent msg color */
-        margin-left:auto;
-        text-align:right;
-    }
-    .input-box{
-        display:flex;
-        padding:10px;
-        background:white;
-    }
-    .input-box input{
-        flex:1;
-        padding:10px;
-        border:1px solid #ddd;
-        border-radius:5px;
-    }
-    .input-box button{
-        padding:10px 15px;
-        margin-left:10px;
-        border:none;
-        background:green;
-        color:white;
-        border-radius:5px;
-    }
-</style>
-
+    <title>Chat Room</title>
+    <style>
+        body { font-family: Arial; background: #FBEEC1; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .chat-container { width: 50%; background: #557A95; padding: 10px; border-radius: 10px; display: flex; flex-direction: column; }
+        #chatContainer { height: 300px; overflow-y: auto; background: #B1A296; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .send { background: #D4E157; padding: 5px; border-radius: 5px; margin-left: auto; margin-bottom: 5px; max-width: 70%; }
+        .receive { background: #FFCC80; padding: 5px; border-radius: 5px; margin-right: auto; margin-bottom: 5px; max-width: 70%; }
+        form { display: flex; }
+        textarea { width: 80%; height: 40px; }
+        button { width: 18%; }
+    </style>
 </head>
 <body>
+    <div class="chat-container">
+        <h2>Chat Room</h2>
+        <div id="chatContainer"></div>
+        <form id="message-form">
+            <textarea id="msg" placeholder="Type message"></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </div>
 
-<h2 style="padding:10px;">Inbox ( {{ room_name }} )</h2>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roomName = "nishatroom";  // Django URL parameter
+            const chatContainer = document.getElementById('chatContainer');
+            const form = document.getElementById('message-form');
+            const messageInput = document.getElementById('msg');
 
-<div class="chat-box">
+            // WebSocket connection
+            const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/');
 
-    <!-- এখানে LOOP বসবে -->
-    {% for msg in message %}
-        <div class="msg {% if msg.user == user %} own {% endif %}">
-            <p>{{ msg.text }}</p>
+            chatSocket.onopen = () => console.log("[CONNECTED] WebSocket connection opened");
 
-            {% if msg.user == user %}
-                <small>
-                    {% if msg.seen %}
-                        ✔✔ Seen
-                    {% else %}
-                        ✔ Sent
-                    {% endif %}
-                </small>
-            {% endif %}
-        </div>
-    {% endfor %}
-</div>
+            chatSocket.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                const div = document.createElement('div');
+                if (data.sender === "User1") {
+                    div.classList.add('send');
+                    div.innerHTML = `<p>${data.message}</p>`;
+                } else {
+                    div.classList.add('receive');
+                    div.innerHTML = `<p>${data.message} <strong>- ${data.sender}</strong></p>`;
+                }
+                chatContainer.appendChild(div);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                console.log("[RECEIVED in JS]", data);
+            };
 
-<!-- message send box -->
-<div class="input-box">
-    <input type="text" id="message_input" placeholder="Type your message...">
-    <button id="sendBtn">Send</button>
-</div>
+            chatSocket.onclose = () => console.log("[DISCONNECTED] WebSocket closed");
 
+            // Send message
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                chatSocket.send(JSON.stringify({
+                    'sender': 'User1',
+                    'message': messageInput.value,
+                    'room_name': roomName
+                }));
+                messageInput.value = '';
+            };
+        });
+    </script>
 </body>
 </html>
